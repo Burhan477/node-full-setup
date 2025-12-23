@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
-import { connectDB } from "../config/db.config";
-import { logger } from "../config/logger.config";
+import { connectDB } from "@/config/db.config";
+import { logger } from "@/config/logger.config";
 
 // 👇 Import ALL models here (now & future)
-import "../modules/user/user.model";
-// import "../modules/role/role.model";
-// import "../modules/rolePermission/rolePermission.model";
+import "@/modules/user/user.model";
+import "@/modules/role/role.model";
+// import "@/modules/rolePermission/rolePermission.model";
 
 const migrate = async () => {
   try {
@@ -20,6 +20,7 @@ const migrate = async () => {
     for (const model of models) {
       await model.init();
       logger.info(`📦 Initialized model: ${model.modelName}`);
+      console.log(`📦 Initialized model: ${model.modelName}`);
     }
 
     logger.info("✅ DB migration completed successfully");

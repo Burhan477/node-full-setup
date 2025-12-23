@@ -30,3 +30,15 @@ export const login = async (req: Request, res: Response) => {
   res.status(200).json({ success: true, data: result });
 };
 
+export const profile = async (req: Request, res: Response) => {
+  if (!req.user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  const user = await userService.getUserById(String(req.user.user_id));
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+};

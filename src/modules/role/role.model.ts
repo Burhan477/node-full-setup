@@ -1,9 +1,5 @@
 import { Schema, model, Types } from "mongoose";
-
-export interface IRole {
-  name: string;
-  description?: string;
-}
+import { IRole } from "@/types/database";
 
 const RoleSchema = new Schema<IRole>(
   {

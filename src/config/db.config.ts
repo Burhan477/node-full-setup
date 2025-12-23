@@ -25,7 +25,7 @@ const connectDB = async (): Promise<typeof mongoose> => {
   if (!globalCache.promise) {
     globalCache.promise = mongoose.connect(env.MONGO_URI, {
       dbName: env.MONGO_DB,
-      serverSelectionTimeoutMS: 10000,
+      // serverSelectionTimeoutMS: 10000,
     });
   }
 

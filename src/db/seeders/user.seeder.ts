@@ -1,30 +1,51 @@
 import bcrypt from "bcrypt";
-import { logger } from "../../config/logger.config";
-import { UserModel } from "../../modules/user/user.model";
+import { UserModel } from "@/modules/user/user.model";
+import { RoleModel } from "@/modules/role/role.model";
+import { logger } from "@/config/logger.config";
 
-export const seedUsers = async (): Promise<void> => {
+export default async function seedUsers() {
   logger.info("🌱 Seeding users...");
 
-  const existingUsers = await UserModel.countDocuments();
-  if (existingUsers > 0) {
-    logger.warn("⚠️ Users already exist. Skipping user seeder.");
-    return;
+  const adminRole = await RoleModel.findOne({ name: "admin" });
+  const userRole = await RoleModel.findOne({ name: "user" });
+
+  if (!adminRole || !userRole) {
+    throw new Error("Roles not found. Run role seeder first.");
   }
 
-  const password = await bcrypt.hash("Password@123", 10);
-
-  await UserModel.insertMany([
+  const users = [
     {
       name: "Admin User",
       email: "admin@example.com",
-      password,
+      password: "Admin@123",
+      role_id: adminRole._id,
     },
     {
-      name: "Test User",
+      name: "Normal User",
       email: "user@example.com",
-      password,
+      password: "User@123",
+      role_id: userRole._id,
     },
-  ]);
+  ];
 
-  logger.info("✅ User seeding done");
-};
+  for (const user of users) {
+    const exists = await UserModel.findOne({ email: user.email });
+    if (exists) {
+      logger.warn(`⚠️ User already exists: ${user.email}`);
+      continue;
+    }
+
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+
+    await UserModel.create({
+      name: user.name,
+      email: user.email,
+      password: hashedPassword,
+      role_id: user.role_id,
+    });
+
+    logger.info(`✅ User created: ${user.email}`);
+  }
+
+  logger.info("🎉 User seeding completed");
+}

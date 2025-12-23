@@ -1,5 +1,12 @@
-import { Schema, model } from "mongoose";
-import { IUser } from "../../types/database";
+import { Schema, model, Types } from "mongoose";
+
+export interface IUser {
+  name: string;
+  email: string;
+  password: string;
+  token?: string;
+  role_id: Types.ObjectId;
+}
 
 const UserSchema = new Schema<IUser>(
   {
@@ -10,19 +17,20 @@ const UserSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
     },
+
     password: {
       type: String,
       required: true,
       select: false,
     },
-    role: {
-      type: String,
-      default: "user",
+    token: { type: String, select: false },
+    role_id: {
+      type: Schema.Types.ObjectId,
+      ref: "Role",
+      required: true,
     },
   },
   { timestamps: true }
 );
-
-UserSchema.index({ email: 1 }, { unique: true });
 
 export const UserModel = model<IUser>("User", UserSchema);

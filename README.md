@@ -288,7 +288,7 @@ const data = createUserSchema.parse(req.body);
 Use Winston logger from `src/config/logger.config.ts`:
 
 ```typescript
-import { logger } from '../config/logger.config';
+import { logger } from '@/config/logger.config';
 
 logger.info('User created', { userId: user.id });
 logger.error('Database error', error);

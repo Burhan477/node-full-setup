@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
 import { UserModel } from "./user.model";
-import { signToken } from "../../utils/jwt";
+import { signToken } from "@/utils/jwt";
+import { RoleModel } from "../role/role.model";
+import { Types } from "mongoose";
 
 interface CreateUserPayload {
   name: string;
@@ -35,20 +37,65 @@ export const getUsers = async () => {
   return UserModel.find().select("-password");
 };
 
-export const signup = async (payload: CreateUserPayload) => {
-  const exists = await UserModel.findOne({ email: payload.email });
-  if (exists) throw new Error("User already exists");
+// export const signup = async (payload: CreateUserPayload) => {
+//   const exists = await UserModel.findOne({ email: payload.email });
+//   if (exists) throw new Error("User already exists");
 
+//   const hashedPassword = await bcrypt.hash(payload.password, 10);
+
+//   const user = await UserModel.create({
+//     ...payload,
+//     password: hashedPassword,
+//   });
+
+//   const token = signToken({ id: user._id, role: user.role_id });
+
+//   return { token };
+// };
+
+export const signup = async (payload: {
+  name: string;
+  email: string;
+  password: string;
+}) => {
+  // 1️⃣ Check existing user
+  const exists = await UserModel.findOne({ email: payload.email });
+  if (exists) {
+    throw new Error("User already exists");
+  }
+
+  // 2️⃣ Find USER role
+  const userRole = await RoleModel.findOne({ name: "user" });
+  if (!userRole) {
+    throw new Error("Default user role not found. Run role seeder.");
+  }
+
+  // 3️⃣ Hash password
   const hashedPassword = await bcrypt.hash(payload.password, 10);
 
+  // 4️⃣ Create user WITH role_id
   const user = await UserModel.create({
-    ...payload,
+    name: payload.name,
+    email: payload.email,
     password: hashedPassword,
+    role_id: userRole._id,
   });
 
-  const token = signToken({ id: user._id, role: user.role });
+  // 5️⃣ Generate token
+  const token = signToken({
+    user_id: user._id,
+    role_id: user.role_id,
+  });
 
-  return { token };
+  // 6️⃣ Store token (stateful JWT)
+  user.token = token;
+  await user.save();
+
+  return {
+    id: user._id,
+    email: user.email,
+    token,
+  };
 };
 
 export const login = async (payload: CreateUserPayload) => {
@@ -61,7 +108,31 @@ export const login = async (payload: CreateUserPayload) => {
   const isMatch = await bcrypt.compare(payload.password, user.password);
   if (!isMatch) throw new Error("Invalid credentials");
 
-  const token = signToken({ id: user._id, role: user.role });
+  const token = signToken({
+    user_id: user._id,
+    role_id: user.role_id,
+  });
+  // Store token (stateful JWT)
+  user.token = token;
+  await user.save();
 
-  return { token };
+  const data = { ...user.toObject(), token };
+
+  return data;
+};
+
+export const getUserById = async (userId: string) => {
+  if (!Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid user id");
+  }
+
+  const user = await UserModel.findById(new Types.ObjectId(userId)).select(
+    "-password -token"
+  );
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
 };

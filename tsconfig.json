@@ -1,4 +1,3 @@
-// tsconfig.json
 {
   "compilerOptions": {
     /* Language */
@@ -12,10 +11,25 @@
     "rootDir": "./src",
     "outDir": "./dist",
 
+    /* Path alias */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
+    /* TS 6.x deprecation handling */
+    // "ignoreDeprecations": "6.0",
+
     /* Type safety */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+
+    /* Global types */
+    "typeRoots": [
+      "./src/types",
+      "./node_modules/@types"
+    ],
 
     /* Interop */
     "esModuleInterop": true,

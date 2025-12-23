@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import { connectDB } from "../config/db.config";
-import { logger } from "../config/logger.config";
-import { seedUsers } from "./seeders/user.seeder";
+import { connectDB } from "@/config/db.config";
+import { logger } from "@/config/logger.config";
 
-// Import all seeders here
-// import { seedRoles } from "./role.seeder";
+// Seeders
+import seedRoles from "./seeders/role.seeder";
+import seedUsers from "./seeders/user.seeder";
 
 const runSeeders = async () => {
   try {
@@ -14,16 +14,16 @@ const runSeeders = async () => {
     logger.info("✅ Database connected");
 
     // Run seeders in order
+    await seedRoles();
     await seedUsers();
-    // await seedRoles();
 
     logger.info("🎉 All seeders executed successfully");
-    process.exit(0);
   } catch (error) {
     logger.error("❌ Database seeding failed", error);
-    process.exit(1);
+    process.exitCode = 1;
   } finally {
     await mongoose.connection.close();
+    logger.info("🔌 Database connection closed");
   }
 };
 

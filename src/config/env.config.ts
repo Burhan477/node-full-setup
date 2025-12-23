@@ -10,6 +10,7 @@ export const env = {
   MONGO_DB: process.env.MONGO_DB as string,
 
   JWT_SECRET: process.env.JWT_SECRET as string,
+  JWT_EXPIRATION: process.env.JWT_EXPIRATION || ("1d" as string),
 };
 
 // Fail fast if critical envs are missing
