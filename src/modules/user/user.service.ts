@@ -1,3 +1,4 @@
+// src/modules/user/user.service.ts
 import bcrypt from "bcrypt";
 import { UserModel } from "./user.model";
 import { signToken } from "@/utils/jwt";
@@ -36,22 +37,6 @@ export const createUser = async (payload: CreateUserPayload) => {
 export const getUsers = async () => {
   return UserModel.find().select("-password");
 };
-
-// export const signup = async (payload: CreateUserPayload) => {
-//   const exists = await UserModel.findOne({ email: payload.email });
-//   if (exists) throw new Error("User already exists");
-
-//   const hashedPassword = await bcrypt.hash(payload.password, 10);
-
-//   const user = await UserModel.create({
-//     ...payload,
-//     password: hashedPassword,
-//   });
-
-//   const token = signToken({ id: user._id, role: user.role_id });
-
-//   return { token };
-// };
 
 export const signup = async (payload: {
   name: string;
@@ -116,7 +101,7 @@ export const login = async (payload: CreateUserPayload) => {
   user.token = token;
   await user.save();
 
-  const data = { ...user.toObject(), token };
+  const data = { ...user.toObject() };
 
   return data;
 };

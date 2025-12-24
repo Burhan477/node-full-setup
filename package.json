@@ -10,8 +10,8 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
     "format": "prettier \"src/**/*.{ts,tsx,js,json,md}\" --write",
-    "db:migrate": "ts-node src/db/migration.ts",
-    "db:seed": "ts-node src/db/seed.ts"
+    "db:migrate": "ts-node -r tsconfig-paths/register src/db/migration.ts",
+    "db:seed": "ts-node -r tsconfig-paths/register src/db/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +25,8 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.0.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "winston": "^3.19.0",
     "zod": "^4.2.1"
   },
@@ -33,6 +35,8 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.10.4",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^8.48.1",
     "@typescript-eslint/parser": "^8.48.1",
     "eslint": "^9.39.1",

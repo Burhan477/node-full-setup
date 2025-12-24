@@ -3,16 +3,27 @@ export const appConfig = {
   version: "1.0.0",
 
   apiPrefix: "/api",
+  apiVersion: "v1",
+
+  // cors: {
+  //   enabled: true,
+  //   origins: ["http://localhost:3000"],
+  //   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  //   allowedHeaders: ["Content-Type", "Authorization"],
+  //   credentials: true,
+  // },
 
   server: {
-    port: 5000,            // fallback (env overrides)
+    port: 5000, // fallback (env overrides)
     trustProxy: true,
   },
 
   cors: {
     enabled: true,
-    origin: ["*"],         // tighten later
+    origin: ["*"], // tighten later
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   },
 
   security: {
