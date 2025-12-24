@@ -1,19 +1,30 @@
 import { Router } from "express";
-import { profile, getUsers } from "@/modules/user/user.controller";
+import { profile } from "@/modules/user/user.controller";
 import { authMiddleware } from "@/core/middlewares/auth.middleware";
-import { requireRole } from "@/core/middlewares/role.middleware";
 
 const router = Router();
 
 /**
- * GET /api/v1/users/me
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User APIs for authenticated users
  */
-router.get("/me", authMiddleware, profile);
 
 /**
- * GET /api/v1/users
- * Admin-only (example)
+ * @swagger
+ * /users/me:
+ *   get:
+ *     summary: Get current logged-in user admin profile and user profile
+ *     tags: [Users]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile
+ *       401:
+ *         description: Unauthorized
  */
-router.get("/", authMiddleware, requireRole("admin"), getUsers);
+router.get("/profile", authMiddleware, profile);
 
 export default router;

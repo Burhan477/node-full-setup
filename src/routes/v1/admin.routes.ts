@@ -6,13 +6,28 @@ import { getUsers } from "@/modules/user/user.controller";
 const router = Router();
 
 /**
- * All routes below are ADMIN ONLY
+ * @swagger
+ * tags:
+ *   name: Admin
+ *   description: Admin-only APIs
  */
+
+// Protect all admin routes
 router.use(authMiddleware, requireRole("admin"));
 
 /**
- * GET /api/v1/admin/users
- * Get all users (admin only)
+ * @swagger
+ * /admin/users:
+ *   get:
+ *     summary: Get all users (admin only)
+ *     tags: [Admin]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users
+ *       403:
+ *         description: Forbidden
  */
 router.get("/users", getUsers);
 

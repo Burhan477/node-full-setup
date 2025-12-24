@@ -7,15 +7,21 @@ A clean, production-ready backend API built with Express, TypeScript, and MongoD
 This is a RESTful API server designed for simplicity and maintainability. It provides:
 
 - **JWT-based authentication** - Secure token-based login and signup
-- **Role & Permission system** - Fine-grained access control using roles and permissions
+<!-- - **Role & Permission system** - Fine-grained access control using roles and permissions -->
 - **Request validation** - Type-safe validation with Zod
 - **Structured logging** - Comprehensive logging with Winston
 - **Database migration & seeding** - Easy setup and data management
 - **Clean code practices** - Organized folder structure with separation of concerns
+- **Role-based access control** – Admin and User roles
+- **API versioning** – `/api/v1/`
+- **Centralized error handling**
+- **Docker & Docker Compose support**
+- **Load-balancing ready architecture**
+- **Swagger API documentation**
 
 ## Tech Stack
 
-- **Runtime:** Node.js with TypeScript
+- **Runtime:** Node.js (18+) with TypeScript
 - **Framework:** Express.js
 - **Database:** MongoDB with Mongoose ODM
 - **Authentication:** JWT (jsonwebtoken) with bcrypt password hashing
@@ -23,32 +29,38 @@ This is a RESTful API server designed for simplicity and maintainability. It pro
 - **Logging:** Winston for structured logging
 - **Code Quality:** ESLint + Prettier
 - **Development:** ts-node, nodemon
+- **Language:** TypeScript
+- **API Docs:** Swagger (OpenAPI)
+- **Linting & Formatting:** ESLint, Prettier
+- **Containerization:** Docker, Docker Compose
 
 ## Folder Structure
 
 ```
 src/
-├── app.ts                 # Express app configuration
-├── index.ts              # Entry point
-├── bootstrap/            # Server startup logic
-├── config/               # Configuration files (env, database, logger, etc.)
-├── core/                 # Core utilities
-│   ├── constants/        # Application constants
-│   ├── middlewares/      # Express middlewares (auth, error handling)
-│   └── validation/       # Reusable validation schemas
-├── db/                   # Database operations
-│   ├── migration.ts      # Run migrations
-│   ├── seed.ts          # Run seeders
-│   └── seeders/         # Seeder files
-├── modules/              # Feature modules (User, Role, Permission, etc.)
-│   ├── user/            # User module
-│   ├── role/            # Role module
-│   ├── permission/      # Permission module
-│   └── rolePermission/  # Role-Permission relationship
-├── routes/               # API route definitions
-├── types/                # TypeScript type definitions
-├── utils/                # Helper utilities (JWT, response formatting)
-└── views/                # Template files (if needed)
+├── app.ts # Express app setup
+├── index.ts # Application entry point
+├── bootstrap/ # Server startup logic
+│ └── start.ts
+├── config/ # App, DB, env & logger config
+├── core/
+│ ├── constants/
+│ ├── middlewares/ # auth, role, permission, error
+│ └── validation/ # shared validation helpers
+├── db/
+│ ├── migration.ts # DB migration (model init)
+│ ├── seed.ts # Run all seeders
+│ └── seeders/ # role, user seeders
+├── modules/
+│ ├── user/ # user model, service, controller
+│ ├── role/ # role model
+│ └── rolePermission/ # role-permission mapping (future)
+├── routes/
+│ ├── v1/ # API version v1 routes
+│ └── index.ts
+├── types/ # shared & express typings
+├── utils/ # jwt, response helpers
+└── views/ # Template files (if needed)
 ```
 
 ## Environment Setup
@@ -56,7 +68,8 @@ src/
 ### Prerequisites
 
 - Node.js 18+ (check with `node --version`)
-- MongoDB running locally or a connection string available
+- MongoDB running locally or a connection string available (local or Docker)
+- Docker & Docker Compose (optional)
 
 ### Installation
 
@@ -76,7 +89,8 @@ src/
    PORT=3000
    
    # Database
-   MONGODB_URI=mongodb://localhost:27017/my-ts-node-app
+   MONGODB_URI=mongodb://localhost:27017
+   MONGO_DB=clean_arch_db
    
    # JWT
    JWT_SECRET=your-secret-key-here-change-in-production
@@ -109,11 +123,16 @@ src/
 | `npm run lint:fix` | Auto-fix linting issues |
 | `npm run format` | Format code with Prettier |
 
+## API Versioning
+```
+/api/v1/...
+```
+
 ## Authentication Flow
 
 ### User Registration (Signup)
 
-**Endpoint:** `POST /api/users/signup`
+**Endpoint:** `POST /api/v1/signup`
 
 ```json
 {
@@ -139,7 +158,7 @@ src/
 
 ### User Login
 
-**Endpoint:** `POST /api/users/login`
+**Endpoint:** `POST /api/v1/users/login`
 
 ```json
 {
@@ -171,6 +190,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
 
 The token is verified by the `auth.middleware.ts` before accessing protected routes.
 
+
 ## Role & Permission Overview
 
 ### How It Works
@@ -200,6 +220,32 @@ Use middleware to check if a user has specific permissions:
 router.post('/resource', authMiddleware, permissionMiddleware('create_resource'), controller.create);
 ```
 
+## Swagger API Documentation
+```bash
+   http://localhost:5000/api/docs
+```
+
+```
+Supports:
+JWT authentication
+Versioned APIs
+Live request testing
+```
+
+Docker & Load Balancing
+Run with Docker Compose
+docker compose up --build
+
+Scale API instances
+docker compose up --build --scale api=3
+
+
+Architecture:
+
+Client → Nginx → Node API (multiple instances) → MongoDB
+
+The application is stateless, making it safe for horizontal scaling.
+
 ## API Testing
 
 ### Using Postman
@@ -210,7 +256,7 @@ router.post('/resource', authMiddleware, permissionMiddleware('create_resource')
 
 2. **Test Signup:**
    - Method: `POST`
-   - URL: `{{baseUrl}}/api/users/signup`
+   - URL: `{{baseUrl}}/api/v1/signup`
    - Body (JSON):
      ```json
      {
@@ -222,7 +268,7 @@ router.post('/resource', authMiddleware, permissionMiddleware('create_resource')
 
 3. **Test Login:**
    - Method: `POST`
-   - URL: `{{baseUrl}}/api/users/login`
+   - URL: `{{baseUrl}}/api/v1/login`
    - Body (JSON):
      ```json
      {
@@ -234,7 +280,7 @@ router.post('/resource', authMiddleware, permissionMiddleware('create_resource')
 
 4. **Test Protected Route:**
    - Method: `GET`
-   - URL: `{{baseUrl}}/api/users/profile`
+   - URL: `{{baseUrl}}/api/v1/users/profile`
    - Headers:
      ```
      Authorization: Bearer {{token}}
